@@ -1,17 +1,14 @@
 import {
   BadRequestException,
-  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ServicioA2D } from '../a2d/a2d.service';
-import { CrearAreaDto } from './dto/create-area.dto';
+import { EntidadArea } from '../areas/entities/area.entity';
 import { CrearPersonalDto } from './dto/create-personal.dto';
-import { ActualizarAreaDto } from './dto/update-area.dto';
 import { ActualizarPersonalDto } from './dto/update-personal.dto';
-import { EntidadArea } from './entities/area.entity';
 import { EntidadPersonal } from './entities/personal.entity';
 import { EntidadMovimiento } from '../a2d/entities/movement.entity';
 import { VistaIntervalosAsistenciaDiaria } from './entities/daily-attendance-interval.view';
@@ -42,13 +39,15 @@ export class ServicioPersonal {
     await this.servicioA2D.crearUsuarioEnDispositivo(
       dto.cedula,
       `${dto.nombres} ${dto.apellidos}`,
+      (dto.status ?? 1) === 1,
     );
     const personal = this.repositorioPersonal.create({
       cedula: dto.cedula,
       nombres: dto.nombres,
       apellidos: dto.apellidos,
       fechaIngreso: dto.fechaIngreso,
-      estado: dto.estado ?? 1,
+      tipo: dto.tipo ?? 'O',
+      status: dto.status ?? 1,
       areaEncargada: area,
     });
     const personalGuardado = await this.repositorioPersonal.save(personal);
@@ -96,12 +95,14 @@ export class ServicioPersonal {
     const apellidosNuevos = dto.apellidos ?? personal.apellidos;
     const cambioDatosDispositivo =
       nombresNuevos !== personal.nombres ||
-      apellidosNuevos !== personal.apellidos;
+      apellidosNuevos !== personal.apellidos ||
+      (dto.status !== undefined && dto.status !== personal.status);
 
     if (cambioDatosDispositivo) {
       await this.servicioA2D.actualizarUsuarioEnDispositivo(
         personal.cedula,
         `${nombresNuevos} ${apellidosNuevos}`,
+        (dto.status ?? personal.status) === 1,
       );
     }
 
@@ -116,6 +117,19 @@ export class ServicioPersonal {
     const personal = await this.buscarPorId(id);
     await this.servicioA2D.eliminarUsuariosDelDispositivo([personal.cedula]);
     await this.repositorioPersonal.remove(personal);
+  }
+
+  async toggleStatus(id: number): Promise<EntidadPersonal> {
+    const personal = await this.buscarPorId(id);
+    const nuevoStatus: 0 | 1 = personal.status === 1 ? 0 : 1;
+
+    await this.servicioA2D.actualizarUsuarioEnDispositivo(
+      personal.cedula,
+      `${personal.nombres} ${personal.apellidos}`,
+      nuevoStatus === 1,
+    );
+    personal.status = nuevoStatus;
+    return this.repositorioPersonal.save(personal);
   }
 
   async obtenerAsistenciaDiaria(
@@ -191,40 +205,6 @@ export class ServicioPersonal {
       duracionSegundos: Number(resumen.duracionSegundos),
       horasTrabajadas: Number(resumen.horasTrabajadas),
     }));
-  }
-
-  async crearArea(dto: CrearAreaDto): Promise<EntidadArea> {
-    return this.repositorioAreas.save(this.repositorioAreas.create(dto));
-  }
-
-  buscarTodasLasAreas(): Promise<EntidadArea[]> {
-    return this.repositorioAreas.find({ order: { nombre: 'ASC' } });
-  }
-
-  async buscarAreaPorId(id: number): Promise<EntidadArea> {
-    return this.buscarArea(id);
-  }
-
-  async actualizarArea(
-    id: number,
-    dto: ActualizarAreaDto,
-  ): Promise<EntidadArea> {
-    const area = await this.buscarArea(id);
-    Object.assign(area, dto);
-    return this.repositorioAreas.save(area);
-  }
-
-  async eliminarArea(id: number): Promise<void> {
-    const area = await this.buscarArea(id);
-    const cantidadPersonal = await this.repositorioPersonal.count({
-      where: { areaEncargada: { id } },
-    });
-    if (cantidadPersonal > 0) {
-      throw new ConflictException(
-        'No se puede eliminar un área que tiene personal asignado',
-      );
-    }
-    await this.repositorioAreas.remove(area);
   }
 
   private async buscarArea(id: number): Promise<EntidadArea> {

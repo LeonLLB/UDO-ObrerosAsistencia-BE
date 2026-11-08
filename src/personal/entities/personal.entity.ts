@@ -7,7 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { EntidadMovimiento } from '../../a2d/entities/movement.entity';
-import { EntidadArea } from './area.entity';
+import { EntidadArea } from '../../areas/entities/area.entity';
 
 @Entity({ name: 'personal' })
 export class EntidadPersonal {
@@ -26,8 +26,11 @@ export class EntidadPersonal {
   @Column({ name: 'fecha_ingreso', type: 'date' })
   fechaIngreso!: string;
 
-  @Column({ type: 'tinyint', default: 1 })
-  estado!: number;
+  @Column({ type: 'varchar', length: 1, default: 'O' })
+  tipo!: 'A' | 'O';
+
+  @Column({ name: 'estado', type: 'tinyint', default: 1 })
+  status!: 0 | 1;
 
   @ManyToOne(() => EntidadArea, (area) => area.personal, {
     nullable: false,

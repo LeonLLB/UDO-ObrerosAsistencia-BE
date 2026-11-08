@@ -2,10 +2,12 @@ import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { ModuloAreas } from './areas/areas.module';
 import { ModuloA2D } from './a2d/a2d.module';
 import { PersonalAttendance1730676000000 } from './database/migrations/1730676000000-personal-attendance';
 import { PersonalAttendanceViews1793740000000 } from './database/migrations/1793740000000-personal-attendance-views';
 import { MigracionNombresEnEspanol1793740000001 } from './database/migrations/1793740000001-nombres-en-espanol';
+import { PersonalType1793942000000 } from './database/migrations/1793942000000-personal-type';
 import { UsersAndTracking1793938000000 } from './database/migrations/1793938000000-users-and-tracking';
 import { UserStatus1793939000000 } from './database/migrations/1793939000000-user-status';
 import { SeguimientoUserRelation1793940000000 } from './database/migrations/1793940000000-seguimiento-user-relation';
@@ -34,6 +36,7 @@ import { UsersModule } from './users/users.module';
           PersonalAttendance1730676000000,
           PersonalAttendanceViews1793740000000,
           MigracionNombresEnEspanol1793740000001,
+          PersonalType1793942000000,
           UsersAndTracking1793938000000,
           UserStatus1793939000000,
           SeguimientoUserRelation1793940000000,
@@ -44,6 +47,7 @@ import { UsersModule } from './users/users.module';
     ScheduleModule.forRoot(),
     ModuloA2D,
     ModuloPersonal,
+    ModuloAreas,
     SeguimientoModule,
     UsersModule,
   ],

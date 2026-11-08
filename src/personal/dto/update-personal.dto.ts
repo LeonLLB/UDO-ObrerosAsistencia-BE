@@ -7,6 +7,7 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { TipoPersonal } from './create-personal.dto';
 
 export class ActualizarPersonalDto {
   @IsOptional()
@@ -32,8 +33,12 @@ export class ActualizarPersonalDto {
   fechaIngreso?: string;
 
   @IsOptional()
+  @IsIn(Object.values(TipoPersonal))
+  tipo?: TipoPersonal;
+
+  @IsOptional()
   @IsIn([0, 1])
-  estado?: number;
+  status?: 0 | 1;
 
   @IsOptional()
   @IsInt()

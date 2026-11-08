@@ -8,6 +8,11 @@ import {
   MaxLength,
 } from 'class-validator';
 
+export enum TipoPersonal {
+  ADMINISTRATIVO = 'A',
+  OBRERO = 'O',
+}
+
 export class CrearPersonalDto {
   @IsString()
   @IsNotEmpty()
@@ -28,8 +33,12 @@ export class CrearPersonalDto {
   fechaIngreso!: string;
 
   @IsOptional()
+  @IsIn(Object.values(TipoPersonal))
+  tipo?: TipoPersonal;
+
+  @IsOptional()
   @IsIn([0, 1])
-  estado?: number;
+  status?: 0 | 1;
 
   @IsInt()
   idAreaEncargada!: number;

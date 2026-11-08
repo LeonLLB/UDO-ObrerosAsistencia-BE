@@ -70,14 +70,22 @@ VALUES ('CEDULA', 'NOMBRES', 'APELLIDOS', 'A', 1, 'HASH_BCRYPT_GENERADO');
 
 ## Personal y áreas
 
-- `POST`, `GET` en `/areas`; `GET`, `PATCH` y `DELETE` en `/areas/:id`.
-- `POST`, `GET` en `/personal`; `GET`, `PATCH` y `DELETE` en
+- Las áreas/dependencias se administran desde el módulo separado `areas`:
+  `POST`, `GET` en `/areas`; `GET`, `PUT` y `DELETE` en `/areas/:id`.
+- `POST`, `GET` en `/personal`; `GET`, `PUT` y `DELETE` en
   `/personal/:id`.
 - Al crear personal, se registra también el usuario del dispositivo usando la
-  cédula como número de empleado y combinando nombres y apellidos.
+  cédula como número de empleado y combinando nombres y apellidos. `tipo`
+  acepta `administrativo` u `obrero`; `status` usa `1` para activo y `0` para
+  inactivo.
 - Al actualizar nombres o apellidos se actualiza el usuario del dispositivo.
   La cédula es inmutable: si se ingresó incorrectamente, elimina el personal y
   vuelve a crearlo con la cédula correcta.
+- Al crear, editar o eliminar personal, primero se comprueba que el endpoint
+  ISAPI del captahuella responda. Personal inactivo se sincroniza con
+  `Valid.enable = false`; al reactivarlo se vuelve a habilitar.
+- `PUT /personal/:id/toggle-status` invierte el estado del trabajador y lo
+  sincroniza con el captahuella.
 - Al eliminar personal, se elimina primero el usuario del dispositivo y luego
   el registro del personal.
 - `GET /personal/:id/asistencia/:fecha` devuelve los intervalos y el total
@@ -93,12 +101,13 @@ Ejemplo para crear personal:
   "nombres": "Ana",
   "apellidos": "Pérez",
   "fechaIngreso": "2026-01-01",
-  "estado": 1,
+  "tipo": "obrero",
+  "status": 1,
   "idAreaEncargada": 1
 }
 ```
 
-`estado` es `0` para inactivo y `1` para activo. Para crear un área, envía
+Para crear un área, envía
 `{"nombre":"DACE"}` a `POST /areas`.
 
 ## Dispositivo y asistencia

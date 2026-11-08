@@ -34,20 +34,23 @@ export class ServicioA2D {
   async crearUsuarioEnDispositivo(
     numeroEmpleado: string,
     nombre: string,
+    activo = true,
   ): Promise<unknown> {
-    return this.guardarUsuarioEnDispositivo(numeroEmpleado, nombre);
+    return this.guardarUsuarioEnDispositivo(numeroEmpleado, nombre, activo);
   }
 
   async actualizarUsuarioEnDispositivo(
     numeroEmpleado: string,
     nombre: string,
+    activo = true,
   ): Promise<unknown> {
-    return this.guardarUsuarioEnDispositivo(numeroEmpleado, nombre);
+    return this.guardarUsuarioEnDispositivo(numeroEmpleado, nombre, activo);
   }
 
   private async guardarUsuarioEnDispositivo(
     numeroEmpleado: string,
     nombre: string,
+    activo: boolean,
   ): Promise<unknown> {
     try {
       return await this.solicitarAlDispositivo(
@@ -59,7 +62,7 @@ export class ServicioA2D {
             name: nombre,
             userType: 'normal',
             Valid: {
-              enable: true,
+              enable: activo,
               beginTime: '2026-01-01T00:00:00',
               endTime: '2030-12-31T23:59:59',
             },
@@ -74,6 +77,36 @@ export class ServicioA2D {
         error instanceof Error ? error.stack : String(error),
       );
       throw error;
+    }
+  }
+
+  async verificarDispositivoDisponible(): Promise<boolean> {
+    try {
+      const ipDispositivo =
+        this.configuracion.getOrThrow<string>('IP_DISPOSITIVO');
+      const urlBase = ipDispositivo.includes('://')
+        ? ipDispositivo
+        : `http://${ipDispositivo}`;
+      const respuesta = await fetch(
+        new URL('/ISAPI/System/DeviceInfo', urlBase),
+        { signal: AbortSignal.timeout(2000) },
+      );
+
+      if (respuesta.status === 401 || respuesta.ok) {
+        await respuesta.body?.cancel();
+        return true;
+      }
+
+      await respuesta.body?.cancel();
+      this.registrador.warn(
+        `El endpoint ISAPI del dispositivo respondió HTTP ${respuesta.status}`,
+      );
+      return false;
+    } catch (error) {
+      this.registrador.warn(
+        `El dispositivo biométrico no responde: ${error instanceof Error ? error.message : String(error)}`,
+      );
+      return false;
     }
   }
 

@@ -5,31 +5,30 @@ import {
   Get,
   Param,
   ParseIntPipe,
-  Patch,
   Post,
   Put,
 } from '@nestjs/common';
 import { CrearAreaDto } from './dto/create-area.dto';
 import { ActualizarAreaDto } from './dto/update-area.dto';
-import { ServicioPersonal } from './personal.service';
+import { ServicioAreas } from './areas.service';
 
 @Controller('areas')
 export class ControladorAreas {
-  constructor(private readonly servicioPersonal: ServicioPersonal) {}
+  constructor(private readonly servicioAreas: ServicioAreas) {}
 
   @Post()
   crear(@Body() dto: CrearAreaDto) {
-    return this.servicioPersonal.crearArea(dto);
+    return this.servicioAreas.crear(dto);
   }
 
   @Get()
   buscarTodas() {
-    return this.servicioPersonal.buscarTodasLasAreas();
+    return this.servicioAreas.buscarTodas();
   }
 
   @Get(':id')
   buscarPorId(@Param('id', ParseIntPipe) id: number) {
-    return this.servicioPersonal.buscarAreaPorId(id);
+    return this.servicioAreas.buscarPorId(id);
   }
 
   @Put(':id')
@@ -37,11 +36,11 @@ export class ControladorAreas {
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: ActualizarAreaDto,
   ) {
-    return this.servicioPersonal.actualizarArea(id, dto);
+    return this.servicioAreas.actualizar(id, dto);
   }
 
   @Delete(':id')
   eliminar(@Param('id', ParseIntPipe) id: number) {
-    return this.servicioPersonal.eliminarArea(id);
+    return this.servicioAreas.eliminar(id);
   }
 }
