@@ -3,11 +3,19 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  Matches,
   MaxLength,
 } from 'class-validator';
 import { TipoUsuario } from '../tipo-usuario';
 
 export class ActualizarUsuarioDto {
+
+  @IsOptional()
+  @IsString()
+  @Matches(/^\d{1,20}$/)
+  cedula?: string;
+  
+
   @IsOptional()
   @IsString()
   @IsNotEmpty()

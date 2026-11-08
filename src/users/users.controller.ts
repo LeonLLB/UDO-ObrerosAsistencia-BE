@@ -46,28 +46,28 @@ export class UsersController {
 
   
 
-  @Put(':cedula')
+  @Put(':id')
   @UseGuards(GuardiaSesion, GuardiaAdmin)
   actualizar(
-    @Param('cedula') cedula: string,
+    @Param('id') id: string,
     @Body() dto: ActualizarUsuarioDto,
   ) {
-    return this.servicioUsuarios.actualizar(cedula, dto);
+    return this.servicioUsuarios.actualizar(+id, dto);
   }
 
-  @Put(':cedula/clave')
+  @Put(':id/clave')
   @UseGuards(GuardiaSesion, GuardiaAdmin)
-  reiniciarClave(@Param('cedula') cedula: string) {
-    return this.servicioUsuarios.reiniciarClave(cedula);
+  reiniciarClave(@Param('id') id: string) {
+    return this.servicioUsuarios.reiniciarClave(+id);
   }
 
-  @Delete(':cedula')
+  @Delete(':id')
   @HttpCode(204)
   @UseGuards(GuardiaSesion, GuardiaAdmin)
   eliminar(
-    @Param('cedula') cedula: string,
+    @Param('id') id: number,
     @Req() request: RequestAutenticado,
   ) {
-    return this.servicioUsuarios.eliminar(cedula, request.user!.cedula);
+    return this.servicioUsuarios.eliminar(+id, request.user!.id);
   }
 }

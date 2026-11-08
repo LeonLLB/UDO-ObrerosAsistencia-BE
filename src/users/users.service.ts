@@ -91,8 +91,7 @@ export class UsersService {
       nombres: dto.nombres,
       apellidos: dto.apellidos,
       tipo: dto.tipo,
-      status: 1,
-      claveHash: await bcrypt.hash(dto.clave, 10),
+      status: 0
     });
     return this.aUsuarioAutenticado(
       await this.repositorioUsuarios.save(usuario),
@@ -100,36 +99,36 @@ export class UsersService {
   }
 
   async actualizar(
-    cedula: string,
+    id: number,
     dto: ActualizarUsuarioDto,
   ): Promise<UsuarioAutenticado> {
-    const usuario = await this.buscarEntidad(cedula);
+    const usuario = await this.buscarEntidad(id,true);
     Object.assign(usuario, dto);
     return this.aUsuarioAutenticado(
       await this.repositorioUsuarios.save(usuario),
     );
   }
 
-  async reiniciarClave(cedula: string): Promise<{ message: string }> {
-    const usuario = await this.buscarEntidad(cedula);
+  async reiniciarClave(id: number): Promise<{ message: string }> {
+    const usuario = await this.buscarEntidad(id,true);
     usuario.status = 0;
     usuario.claveHash = null;
     await this.repositorioUsuarios.save(usuario);
     return { message: 'Clave eliminada; debe registrarse nuevamente' };
   }
 
-  async eliminar(cedula: string, cedulaSolicitante: string): Promise<void> {
-    if (cedula === cedulaSolicitante) {
+  async eliminar(id: number, idSolicitante: number): Promise<void> {
+    if (id === idSolicitante) {
       throw new ConflictException('No puede eliminar su propia cuenta');
     }
-    const usuario = await this.buscarEntidad(cedula);
+    const usuario = await this.buscarEntidad(id,true);
     await this.repositorioUsuarios.remove(usuario);
   }
 
-  private async buscarEntidad(cedula: string): Promise<EntidadUsuario> {
-    const usuario = await this.repositorioUsuarios.findOneBy({ cedula });
+  private async buscarEntidad(id: number | string, byId?: boolean): Promise<EntidadUsuario> {
+    const usuario = await this.repositorioUsuarios.findOneBy(byId ? { id: id as number } : { cedula: id as string });
     if (!usuario) {
-      throw new NotFoundException(`No se encontró el usuario ${cedula}`);
+      throw new NotFoundException(`No se encontró el usuario ${id}`);
     }
     return usuario;
   }

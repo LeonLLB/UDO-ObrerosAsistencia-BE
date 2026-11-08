@@ -25,8 +25,4 @@ export class CrearUsuarioDto {
   @IsEnum(TipoUsuario)
   tipo!: TipoUsuario;
 
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(72)
-  clave!: string;
 }
