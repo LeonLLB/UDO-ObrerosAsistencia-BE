@@ -18,26 +18,36 @@ import { ActualizarUsuarioDto } from './dtos/update-user.dto';
 import { UsersService } from './users.service';
 
 @Controller('users')
-@UseGuards(GuardiaSesion, GuardiaAdmin)
 export class UsersController {
   constructor(private readonly servicioUsuarios: UsersService) {}
 
   @Post()
+  @UseGuards(GuardiaSesion, GuardiaAdmin)
   crear(@Body() dto: CrearUsuarioDto) {
     return this.servicioUsuarios.crear(dto);
   }
 
   @Get()
+  @UseGuards(GuardiaSesion, GuardiaAdmin)
   buscarTodos() {
     return this.servicioUsuarios.buscarTodos();
   }
 
+  @Get(':cedula/status')
+  obtenerStatus(@Param('cedula') cedula: string) {
+    return this.servicioUsuarios.obtenerStatus(cedula);
+  }
+
   @Get(':cedula')
+  @UseGuards(GuardiaSesion, GuardiaAdmin)
   buscarPorCedula(@Param('cedula') cedula: string) {
     return this.servicioUsuarios.buscarPorCedula(cedula);
   }
 
+  
+
   @Put(':cedula')
+  @UseGuards(GuardiaSesion, GuardiaAdmin)
   actualizar(
     @Param('cedula') cedula: string,
     @Body() dto: ActualizarUsuarioDto,
@@ -46,12 +56,14 @@ export class UsersController {
   }
 
   @Put(':cedula/clave')
+  @UseGuards(GuardiaSesion, GuardiaAdmin)
   reiniciarClave(@Param('cedula') cedula: string) {
     return this.servicioUsuarios.reiniciarClave(cedula);
   }
 
   @Delete(':cedula')
   @HttpCode(204)
+  @UseGuards(GuardiaSesion, GuardiaAdmin)
   eliminar(
     @Param('cedula') cedula: string,
     @Req() request: RequestAutenticado,

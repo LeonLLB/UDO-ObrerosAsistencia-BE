@@ -57,11 +57,10 @@ export class SeguimientoMiddleware implements NestMiddleware {
         date: fecha,
         responseCode: response.statusCode,
         execTime,
-        user: requestAutenticado.user?.cedula ?? null,
       };
 
       void this.servicioSeguimiento
-        .registrar(seguimiento)
+        .registrar(seguimiento, requestAutenticado.user?.id)
         .catch((error: unknown) => {
           const detalle = error instanceof Error ? error.stack : String(error);
           this.logger.error(

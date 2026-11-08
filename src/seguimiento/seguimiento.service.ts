@@ -18,9 +18,13 @@ export class SeguimientoService {
 
   registrar(
     seguimiento: Partial<EntidadSeguimiento>,
+    usuarioId?: number,
   ): Promise<EntidadSeguimiento> {
     return this.repositorioSeguimientos.save(
-      this.repositorioSeguimientos.create(seguimiento),
+      this.repositorioSeguimientos.create({
+        ...seguimiento,
+        usuario: usuarioId === undefined ? null : { id: usuarioId },
+      }),
     );
   }
 

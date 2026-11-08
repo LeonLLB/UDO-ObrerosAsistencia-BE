@@ -38,14 +38,20 @@ La sincronización automática del esquema de TypeORM está desactivada.
 - `GET /users/:cedula/status` informa si la cuenta está habilitada (`status: 1`)
   o no tiene una clave activa (`status: 0`). Para cédulas sin cuenta devuelve
   `status: 0`.
+- `POST /users/set-password` recibe `cedula`, `password` y `password2`; valida
+  que coincidan y que la cuenta tenga `status: 0`, luego guarda la clave con
+  bcrypt y activa la cuenta (`status: 1`).
 - `GET /users`, `GET /users/:cedula`, `POST /users`, `PUT /users/:cedula`,
   `PUT /users/:cedula/clave` y `DELETE /users/:cedula` requieren una sesión de
-  tipo `A` (Administrador). Reiniciar la clave solo cambia `status` a `0`;
-  dicho usuario no puede iniciar sesión hasta volver a tener `status: 1`. El
-  tipo `C` (Consulta) no puede administrar usuarios.
+  tipo `A` (Administrador). Reiniciar la clave cambia `status` a `0` y borra
+  la clave (`NULL`); el usuario debe establecer una nueva mediante
+  `POST /users/set-password` antes de iniciar sesión. El tipo `C` (Consulta) no
+  puede administrar usuarios.
 - Las claves se guardan con bcrypt. Seguimientos de solicitudes HTTP se
   almacenan en `seguimientos`; los valores sensibles de cuerpos, encabezados y
-  cookies se redactan antes de guardarse.
+  cookies se redactan antes de guardarse. Cada seguimiento se relaciona con su
+  usuario mediante `user_id`; la relación es muchos-a-uno y conserva los
+  registros si se elimina el usuario.
 - La verificación de conectividad a Internet continúa ejecutándose cada minuto
   y registra el resultado en `Health`.
 

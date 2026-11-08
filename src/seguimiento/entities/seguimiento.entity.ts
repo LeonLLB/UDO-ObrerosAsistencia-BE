@@ -1,4 +1,12 @@
-import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { EntidadUsuario } from '../../users/entities/user.entity';
 
 @Entity({ name: 'seguimientos' })
 @Index('IDX_seguimientos_date', ['date'])
@@ -15,8 +23,12 @@ export class EntidadSeguimiento {
   @Column({ type: 'int' })
   execTime!: number;
 
-  @Column({ type: 'varchar', length: 20, nullable: true })
-  user!: string | null;
+  @ManyToOne(() => EntidadUsuario, (usuario) => usuario.seguimientos, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
+  usuario!: EntidadUsuario | null;
 
   @Column({ type: 'varchar', length: 10 })
   method!: string;

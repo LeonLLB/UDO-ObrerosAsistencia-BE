@@ -62,14 +62,9 @@ export class AuthController {
   @UseGuards(SoloServidorGuard)
   async revalidar(
     @Param('TOKEN') token: string,
-    @Res({ passthrough: true }) response: Response,
   ) {
     const resultado = await this.servicioAuth.revalidar(token);
-    response.cookie(
-      NOMBRE_COOKIE_SESION,
-      resultado.newToken,
-      OPCIONES_COOKIE_SESION,
-    );
+    
     return resultado;
   }
 }

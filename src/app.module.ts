@@ -8,6 +8,8 @@ import { PersonalAttendanceViews1793740000000 } from './database/migrations/1793
 import { MigracionNombresEnEspanol1793740000001 } from './database/migrations/1793740000001-nombres-en-espanol';
 import { UsersAndTracking1793938000000 } from './database/migrations/1793938000000-users-and-tracking';
 import { UserStatus1793939000000 } from './database/migrations/1793939000000-user-status';
+import { SeguimientoUserRelation1793940000000 } from './database/migrations/1793940000000-seguimiento-user-relation';
+import { NullUserPassword1793941000000 } from './database/migrations/1793941000000-null-user-password';
 import { ModuloPersonal } from './personal/personal.module';
 import { SeguimientoMiddleware } from './seguimiento/seguimiento.middleware';
 import { SeguimientoModule } from './seguimiento/seguimiento.module';
@@ -34,6 +36,8 @@ import { UsersModule } from './users/users.module';
           MigracionNombresEnEspanol1793740000001,
           UsersAndTracking1793938000000,
           UserStatus1793939000000,
+          SeguimientoUserRelation1793940000000,
+          NullUserPassword1793941000000,
         ],
       }),
     }),

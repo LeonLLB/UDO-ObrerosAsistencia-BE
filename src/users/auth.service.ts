@@ -61,6 +61,7 @@ export class AuthService implements OnModuleDestroy {
     if (
       !usuario ||
       usuario.status !== 1 ||
+      usuario.claveHash === null ||
       !(await bcrypt.compare(dto.clave, usuario.claveHash))
     ) {
       throw new UnauthorizedException('Cédula o clave inválida');
@@ -122,6 +123,10 @@ export class AuthService implements OnModuleDestroy {
     await this.guardarTokenSesion(claveActual, newToken);
     if (claveAnterior !== claveActual) {
       await this.eliminarTokenSesion(claveAnterior);
+    }
+
+    if(process.env.NODE_ENV === 'dev') {
+      console.log('revalidado:', usuario);
     }
 
     return {
@@ -202,6 +207,7 @@ export class AuthService implements OnModuleDestroy {
 
   private aUsuarioAutenticado(usuario: EntidadUsuario): UsuarioAutenticado {
     return {
+      id: usuario.id,
       cedula: usuario.cedula,
       nombres: usuario.nombres,
       apellidos: usuario.apellidos,
