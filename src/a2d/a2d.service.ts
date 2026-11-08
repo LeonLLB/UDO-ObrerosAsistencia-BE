@@ -62,12 +62,12 @@ export class ServicioA2D {
             name: nombre,
             userType: 'normal',
             Valid: {
-              enable: activo,
-              beginTime: '2026-01-01T00:00:00',
-              endTime: '2030-12-31T23:59:59',
+              enable: activo, 
+              beginTime: '2023-01-01T00:00:00',
+              endTime: activo ? '2030-12-31T23:59:59' : '2023-12-31T23:59:59',
             },
-            doorRight: '1',
-            RightPlan: [{ doorNo: 1, planTemplateNo: '1' }],
+            doorRight: activo ? '1' : '',
+            RightPlan: activo ? [{ doorNo: 1, planTemplateNo: '1' }] : []
           },
         },
       );
@@ -88,27 +88,22 @@ export class ServicioA2D {
         ? ipDispositivo
         : `http://${ipDispositivo}`;
       const respuesta = await fetch(
-        new URL('/ISAPI/System/DeviceInfo', urlBase),
+        new URL('/ISAPI/System/time', urlBase),
         { signal: AbortSignal.timeout(2000) },
       );
 
-      if (respuesta.status === 401 || respuesta.ok) {
-        await respuesta.body?.cancel();
+      return true     
+    } catch (error: any) {
+        // Si el error es por el timeout o porque no hay ruta de red (desconectado)
+        if (error.name === 'TimeoutError' || error.cause?.code === 'EHOSTUNREACH' || error.cause?.code === 'ECONNREFUSED') {
+          this.registrador.warn('El dispositivo biométrico no responde al ping. Está fuera de línea o apagado.');
+          return false;
+        }
+        
+        // Si arrojó cualquier otro tipo de error HTTP pero hubo conexión, está vivo
         return true;
       }
-
-      await respuesta.body?.cancel();
-      this.registrador.warn(
-        `El endpoint ISAPI del dispositivo respondió HTTP ${respuesta.status}`,
-      );
-      return false;
-    } catch (error) {
-      this.registrador.warn(
-        `El dispositivo biométrico no responde: ${error instanceof Error ? error.message : String(error)}`,
-      );
-      return false;
     }
-  }
 
   async eliminarUsuariosDelDispositivo(
     numerosEmpleado: string[],

@@ -82,8 +82,9 @@ VALUES ('CEDULA', 'NOMBRES', 'APELLIDOS', 'A', 1, 'HASH_BCRYPT_GENERADO');
   La cédula es inmutable: si se ingresó incorrectamente, elimina el personal y
   vuelve a crearlo con la cédula correcta.
 - Al crear, editar o eliminar personal, primero se comprueba que el endpoint
-  ISAPI del captahuella responda. Personal inactivo se sincroniza con
-  `Valid.enable = false`; al reactivarlo se vuelve a habilitar.
+  ISAPI del captahuella responda. Para personal inactivo, se omiten
+  `doorRight` y `RightPlan` al sincronizarlo con el captahuella; al reactivarlo,
+  se vuelven a enviar esos permisos.
 - `PUT /personal/:id/toggle-status` invierte el estado del trabajador y lo
   sincroniza con el captahuella.
 - Al eliminar personal, se elimina primero el usuario del dispositivo y luego

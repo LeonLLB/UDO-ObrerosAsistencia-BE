@@ -37,6 +37,6 @@ import { UsersService } from './users.service';
       useClass: SessionRenewalInterceptor,
     },
   ],
-  exports: [AuthService, UsersService],
+  exports: [AuthService, UsersService, GuardiaSesion, GuardiaAdmin],
 })
 export class UsersModule {}

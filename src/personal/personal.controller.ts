@@ -15,13 +15,16 @@ import { CrearPersonalDto } from './dto/create-personal.dto';
 import { ActualizarPersonalDto } from './dto/update-personal.dto';
 import { GuardiaDispositivoDisponible } from '../a2d/guards/device-online.guard';
 import { ServicioPersonal } from './personal.service';
+import { GuardiaAdmin } from '../users/guards/admin.guard';
+import { GuardiaSesion } from '../users/guards/session.guard';
 
 @Controller('personal')
+@UseGuards(GuardiaSesion)
 export class ControladorPersonal {
   constructor(private readonly servicioPersonal: ServicioPersonal) {}
 
   @Post()
-  @UseGuards(GuardiaDispositivoDisponible)
+  @UseGuards(GuardiaAdmin, GuardiaDispositivoDisponible)
   crear(@Body() dto: CrearPersonalDto) {
     return this.servicioPersonal.crear(dto);
   }
@@ -54,13 +57,13 @@ export class ControladorPersonal {
   }
 
   @Put(':id/toggle-status')
-  @UseGuards(GuardiaDispositivoDisponible)
+  @UseGuards(GuardiaAdmin, GuardiaDispositivoDisponible)
   toggleStatus(@Param('id', ParseIntPipe) id: number) {
     return this.servicioPersonal.toggleStatus(id);
   }
 
   @Put(':id')
-  @UseGuards(GuardiaDispositivoDisponible)
+  @UseGuards(GuardiaAdmin, GuardiaDispositivoDisponible)
   actualizar(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: ActualizarPersonalDto,
@@ -69,7 +72,7 @@ export class ControladorPersonal {
   }
 
   @Delete(':id')
-  @UseGuards(GuardiaDispositivoDisponible)
+  @UseGuards(GuardiaAdmin, GuardiaDispositivoDisponible)
   eliminar(@Param('id', ParseIntPipe) id: number) {
     return this.servicioPersonal.eliminar(id);
   }
